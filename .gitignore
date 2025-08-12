@@ -1,0 +1,23 @@
+# Frontend
+login-test/node_modules/
+login-test/build/
+login-test/.env
+login-test/.pnp
+login-test/.pnp.js
+login-test/coverage
+
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+
+
+
+# General
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+.env11

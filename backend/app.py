@@ -1,27 +1,30 @@
-
+import os
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import pymysql
 from flask_cors import CORS
 
+load_dotenv()
+
+DB_USER = os.environ.get("DB_USER")
+DB_PASS = os.environ.get("DB_PASS")
+DB_HOST = os.environ.get("DB_HOST", "localhost")
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flaskadmin:Ahmad123456@localhost/'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 
-
+# Create the database if it doesn't exist yet
 with app.app_context():
-    connection = pymysql.connect(
-        host='localhost',
-        user='flaskadmin',
-        password='Ahmad123456'
-    )
+    connection = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASS)
     cursor = connection.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS flask_login")
     connection.close()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flaskadmin:Ahmad123456@localhost/flask_login'
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f'mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}/flask_login'
+)
 db = SQLAlchemy(app)
 
 
@@ -34,6 +37,7 @@ class User(db.Model):
 
 with app.app_context():
     db.create_all()
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -52,6 +56,7 @@ def register():
     db.session.commit()
     return jsonify({'message': 'Registration successful'}), 201
 
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -62,6 +67,7 @@ def login():
         return jsonify({'message': 'Login successful'}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
